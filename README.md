@@ -4,6 +4,10 @@
 
 It's built for server-side **lag compensation**, and works just as well for replays, hit validation, and anything else that needs to ask "where was everything at time T?".
 
+![A walking dummy's recorded poses as a fading blue trail; the pose at the cast time is highlighted red, and a yellow ray hits its head where it was, not where it is now](docs/images/visualizer.jpg)
+
+*The debug visualizer's output for a walking character: past poses (blue), the pose at the query time (red), and a cast hitting the head at its historical position. The visualizer draws HandleAdornments; for this screenshot they were mirrored as parts, because Studio's capture tool doesn't render adornments.*
+
 - **Nothing is rewound.** States are reconstructed on demand from immutable snapshots; Workspace is never modified.
 - **Deterministic.** The same history, time and query always give the same result, independent of iteration order.
 - **Lazy and local.** A context reconstructs only the timelines a query actually touches, chosen by a spatial index over retained history.
