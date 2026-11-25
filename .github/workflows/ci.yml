@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: cachix/install-nix-action@v32
+
+      - name: Format
+        run: nix develop -c stylua --check src tests tools examples
+
+      - name: Lint
+        run: nix develop -c selene src tests examples
+
+      - name: Type check
+        run: |
+          nix develop -c sh -c '
+            set -eu
+            version="$(luau-lsp --version)"
+            curl -fsSL -o globalTypes.d.luau \
+              "https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/$version/scripts/globalTypes.d.luau"
+            rojo sourcemap test.project.json -o sourcemap.json
+            luau-lsp analyze --definitions=globalTypes.d.luau --sourcemap=sourcemap.json src tests examples
+          '
+
+      - name: Tests (headless)
+        run: nix develop -c lune run tools/headless.luau
+
+      - name: Build
+        run: nix develop -c rojo build default.project.json -o Chronocast.rbxm

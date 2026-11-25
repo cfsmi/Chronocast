@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: cachix/install-nix-action@v32
+
+      - name: Check tag matches wally.toml
+        run: |
+          version="$(sed -n 's/^version = "\(.*\)"/\1/p' wally.toml)"
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match wally.toml version $version"
+            exit 1
+          fi
+
+      - name: Tests (headless)
+        run: nix develop -c lune run tools/headless.luau
+
+      - name: Build model
+        run: nix develop -c rojo build default.project.json -o Chronocast.rbxm
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: Chronocast.rbxm
+          generate_release_notes: true

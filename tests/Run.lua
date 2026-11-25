@@ -9,14 +9,26 @@ return function()
 			table.insert(suites, child)
 		end
 	end
-	table.sort(suites, function(a, b) return a.Name < b.Name end)
+	table.sort(suites, function(a, b)
+		return a.Name < b.Name
+	end)
 	assert(#suites > 0, "No regression suites synced")
 	for _, suite in ipairs(suites) do
-		local ok, result = xpcall(function() return require(suite)() end, debug.traceback)
+		local ok, result = xpcall(function()
+			return require(suite)()
+		end, debug.traceback)
 		table.insert(results, { Name = suite.Name, Passed = ok, Detail = tostring(result) })
-		if ok then print("Chronocast PASS: " .. suite.Name) else warn("Chronocast FAIL: " .. suite.Name .. "\n" .. tostring(result)) end
+		if ok then
+			print("Chronocast PASS: " .. suite.Name)
+		else
+			warn("Chronocast FAIL: " .. suite.Name .. "\n" .. tostring(result))
+		end
 	end
 	local passed = 0
-	for _, result in ipairs(results) do if result.Passed then passed += 1 end end
+	for _, result in ipairs(results) do
+		if result.Passed then
+			passed += 1
+		end
+	end
 	return { Passed = passed, Total = #results, Results = results }
 end

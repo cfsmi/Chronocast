@@ -3,8 +3,9 @@ name = "cfsmi/chronocast"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
-private = true
+description = "Temporal query engine for Roblox: reconstruct past object states and query them without rewinding Workspace."
+license = "MIT"
+authors = ["cfsmi"]
+exclude = ["tests", "tools", "examples", "docs", ".github", "*.rbxm", "*.rbxl", "*.rbxlx"]
 
 [dependencies]
-
-[server-dependencies]

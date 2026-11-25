@@ -1,0 +1,18 @@
+{
+  "name": "ChronocastTests",
+  "tree": {
+    "$className": "DataModel",
+    "$ignoreUnknownInstances": true,
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "Chronocast": { "$path": "src" }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$ignoreUnknownInstances": true,
+      "ChronocastTests": { "$path": "tests" },
+      "ChronocastExamples": { "$path": "examples" }
+    }
+  }
+}

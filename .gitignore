@@ -1,4 +1,4 @@
-# Argon
+# Generated
 /sourcemap.json
 
 # Wally
@@ -7,7 +7,7 @@
 /DevPackages
 
 # Artifacts
-/*.lock
+/wally.lock
 /*.rbxl
 /*.rbxlx
 /*.rbxm
@@ -15,3 +15,7 @@
 
 # Misc
 .DS_Store
+
+# Tooling
+/roblox.yml
+/globalTypes.d.luau

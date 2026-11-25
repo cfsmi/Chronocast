@@ -1,5 +1,4 @@
-# Chronocast regression tests
+# Chronocast tests
 
-The Argon test project maps this folder to ServerStorage.ChronocastTests.
-Tests are callable ModuleScripts, not automatically running game scripts.
-See the root README for instructions.
+Callable ModuleScript suites (`*.spec.lua`), the Studio runner `Run.lua`, and `Benchmark.lua`.
+See [CONTRIBUTING.md](../CONTRIBUTING.md#tests) for how to run them in Studio and headless.

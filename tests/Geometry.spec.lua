@@ -14,11 +14,16 @@ return function()
 	end
 	local function isolatedQuery(shape, parameters, definition)
 		local timeline = { Id = "isolated" }
-		local registry = { getAll = function() return { timeline } end }
 		local context = {
-			_getRegistry = function() return registry end,
-			getState = function() return { Transform = { CFrame = CFrame.new() } } end,
-			getCollision = function() return definition end,
+			_candidates = function()
+				return { timeline }
+			end,
+			getState = function()
+				return { Transform = { CFrame = CFrame.new() } }
+			end,
+			getCollision = function()
+				return definition
+			end,
 		}
 		return QueryEngine.execute(context, { Shape = shape, Parameters = parameters })
 	end
@@ -38,8 +43,10 @@ return function()
 	}
 	for _, queryShape in ipairs({ "Ray", "Sphere", "Box", "Capsule" }) do
 		for _, targetShape in ipairs({ "Box", "Sphere", "Capsule" }) do
-			assertHit(isolatedQuery(queryShape, queryParameters[queryShape], targetDefinitions[targetShape]),
-				queryShape .. "/" .. targetShape)
+			assertHit(
+				isolatedQuery(queryShape, queryParameters[queryShape], targetDefinitions[targetShape]),
+				queryShape .. "/" .. targetShape
+			)
 		end
 	end
 	-- Every overlap returns a representative point on the historical target,
@@ -53,12 +60,24 @@ return function()
 			assert((hit.Normal + Vector3.xAxis).Magnitude < 1e-4, "normal must face out of target toward query")
 		end
 	end
-	assertMiss(isolatedQuery("Ray", { Origin = Vector3.zero, Direction = -Vector3.xAxis, MaxDistance = 10 }, targetDefinitions.Box),
-		"box wholly behind ray")
-	assertHit(isolatedQuery("Capsule", { Origin = Vector3.new(6, 0, 0), Radius = 0, Height = 0 }, targetDefinitions.Box),
-		"zero-radius capsule tangent at endpoint")
+	assertMiss(
+		isolatedQuery(
+			"Ray",
+			{ Origin = Vector3.zero, Direction = -Vector3.xAxis, MaxDistance = 10 },
+			targetDefinitions.Box
+		),
+		"box wholly behind ray"
+	)
+	assertHit(
+		isolatedQuery("Capsule", { Origin = Vector3.new(6, 0, 0), Radius = 0, Height = 0 }, targetDefinitions.Box),
+		"zero-radius capsule tangent at endpoint"
+	)
 	for _, targetShape in ipairs({ "Box", "Sphere", "Capsule" }) do
-		local inside = isolatedQuery("Ray", { Origin = Vector3.new(5, 0, 0), Direction = Vector3.xAxis, MaxDistance = 10 }, targetDefinitions[targetShape])
+		local inside = isolatedQuery(
+			"Ray",
+			{ Origin = Vector3.new(5, 0, 0), Direction = Vector3.xAxis, MaxDistance = 10 },
+			targetDefinitions[targetShape]
+		)
 		assertHit(inside, "inside ray/" .. targetShape)
 		assert(inside.Distance == 0, "inside ray should report zero travel")
 	end
@@ -69,22 +88,33 @@ return function()
 		Offset = CFrame.new(30, 0, 2.64) * CFrame.Angles(0, 0, -math.pi / 6),
 		Size = Vector3.new(5, 0.2, 0.2),
 	})
-	local satRegistry = { getAll = function() return { { Id = "sat" } } end }
 	local satContext = {
-		_getRegistry = function() return satRegistry end,
-		getState = function() return { Transform = { CFrame = CFrame.new() } } end,
-		getCollision = function() return targetBox end,
+		_candidates = function()
+			return { { Id = "sat" } }
+		end,
+		getState = function()
+			return { Transform = { CFrame = CFrame.new() } }
+		end,
+		getCollision = function()
+			return targetBox
+		end,
 	}
-	assertMiss(QueryEngine.execute(satContext, {
-		Shape = "Box",
-		Parameters = { CFrame = queryBoxCF, Origin = queryBoxCF.Position, Size = Vector3.new(5, 0.2, 0.2) },
-	}), "separated oriented box SAT")
+	assertMiss(
+		QueryEngine.execute(satContext, {
+			Shape = "Box",
+			Parameters = { CFrame = queryBoxCF, Origin = queryBoxCF.Position, Size = Vector3.new(5, 0.2, 0.2) },
+		}),
+		"separated oriented box SAT"
+	)
 
 	local part = Instance.new("Part")
 	part.Size = Vector3.new(2, 4, 6)
 	part.CFrame = CFrame.new(10, 0, 0)
 	local fromPart = collision.FromPart(part, CFrame.new(8, 0, 0))
-	assert((fromPart.Offset.Position - Vector3.new(2, 0, 0)).Magnitude < 1e-5, "FromPart offset should be relative to reference")
+	assert(
+		(fromPart.Offset.Position - Vector3.new(2, 0, 0)).Magnitude < 1e-5,
+		"FromPart offset should be relative to reference"
+	)
 	assert(table.isfrozen(fromPart), "generated collision should be frozen")
 	part:Destroy()
 	local meshPart = Instance.new("MeshPart")
@@ -99,7 +129,10 @@ return function()
 	modelPart.CFrame = reference * CFrame.new(3, 0, 0)
 	modelPart.Parent = model
 	local fromModel = collision.FromModel(model, reference)
-	assert((fromModel.Offset.Position - Vector3.new(3, 0, 0)).Magnitude < 1e-4, "FromModel bounds should use reference-local coordinates")
+	assert(
+		(fromModel.Offset.Position - Vector3.new(3, 0, 0)).Magnitude < 1e-4,
+		"FromModel bounds should use reference-local coordinates"
+	)
 	model:Destroy()
 
 	local cylinder = Instance.new("Part")
@@ -108,7 +141,11 @@ return function()
 	cylinder.CFrame = CFrame.new(5, 0, 0)
 	local cylinderCollision = collision.FromPart(cylinder)
 	assert(cylinderCollision.Shape == "Box", "cylinder should use conservative oriented bounds")
-	local cylinderHit = isolatedQuery("Ray", { Origin = Vector3.new(-5, 0, 0), Direction = Vector3.xAxis, MaxDistance = 10 }, cylinderCollision)
+	local cylinderHit = isolatedQuery(
+		"Ray",
+		{ Origin = Vector3.new(-5, 0, 0), Direction = Vector3.xAxis, MaxDistance = 10 },
+		cylinderCollision
+	)
 	assertHit(cylinderHit, "ray along cylinder axis")
 	assert(math.abs(cylinderHit.Distance - 3) < 1e-5, "generated collision must not protrude beyond cylinder end")
 	cylinder:Destroy()
@@ -120,11 +157,22 @@ return function()
 	Chronocast:Track({
 		Id = id,
 		Collision = targetDefinitions.Box,
-		Adapter = { GetTransform = function() return CFrame.new() end },
+		Adapter = {
+			GetTransform = function()
+				return CFrame.new()
+			end,
+		},
 	})
 	local context = Chronocast:CreateContext(Chronocast:GetServerTime())
 	local function query(shape, parameters, path)
-		return context:Query({ Shape = shape, Parameters = parameters, Path = path, Filter = function(timeline) return timeline.Id == id end })
+		return context:Query({
+			Shape = shape,
+			Parameters = parameters,
+			Path = path,
+			Filter = function(timeline)
+				return timeline.Id == id
+			end,
+		})
 	end
 	local ok, err = pcall(function()
 		local hit = query("Ray", { Origin = Vector3.zero, Direction = Vector3.xAxis, MaxDistance = 10 })
@@ -149,10 +197,21 @@ return function()
 		assertHit(curvedHit, "custom curved path hit")
 		assert(math.abs(curvedHit.Distance - 10) < 1e-4, "custom curve should use accumulated chord distance")
 		assert(not pcall(function()
-			query("Sphere", { Radius = 0.5 }, Chronocast.Path.Custom({ Samples = math.huge, Sample = function() return CFrame.new() end }))
+			query(
+				"Sphere",
+				{ Radius = 0.5 },
+				Chronocast.Path.Custom({
+					Samples = math.huge,
+					Sample = function()
+						return CFrame.new()
+					end,
+				})
+			)
 		end), "non-finite sample count should be rejected")
 	end)
 	context:Destroy()
 	Chronocast:Untrack(id)
-	if not ok then error(err, 0) end
+	if not ok then
+		error(err, 0)
+	end
 end
