@@ -6,6 +6,8 @@ realm = "shared"
 description = "Temporal query engine for Roblox: reconstruct past object states and query them without rewinding Workspace."
 license = "MIT"
 authors = ["cfsmi"]
+repository = "https://github.com/cfsmi/Chronocast"
+homepage = "https://github.com/cfsmi/Chronocast"
 exclude = ["tests", "tools", "examples", "docs", ".github", "*.rbxm", "*.rbxl", "*.rbxlx"]
 
 [dependencies]

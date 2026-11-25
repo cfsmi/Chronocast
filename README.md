@@ -23,7 +23,7 @@ It's built for server-side **lag compensation**, and works just as well for repl
 Chronocast = "cfsmi/chronocast@0.1.0"
 ```
 
-**Model file**: download `Chronocast.rbxm` from the latest GitHub release and insert it into `ReplicatedStorage`.
+**Model file**: download `Chronocast.rbxm` from the [latest release](https://github.com/cfsmi/Chronocast/releases/latest) and insert it into `ReplicatedStorage`.
 
 **From source**: `rojo build default.project.json -o Chronocast.rbxm` (or sync `default.project.json` with Rojo or Argon).
 
